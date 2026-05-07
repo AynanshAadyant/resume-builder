@@ -8,6 +8,9 @@ await connectDB();
 
 const port = process.env.PORT || 8000;
 
+// ROUTES
+app.use("/api/auth", authRoutes);
+
 app.listen(port, () => {
     console.log(`Server running on PORT : ${port} `)
 })
