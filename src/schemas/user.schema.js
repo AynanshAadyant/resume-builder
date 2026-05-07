@@ -16,28 +16,6 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: [true, "Password is required"]
-    },
-    phoneNo: {
-        type: Number,
-        required: [true, "Phone number is required"],
-        unique: [true, "Phone number already exist"],
-        trim: true
-    },
-    location: {
-        type: String,
-        required: [true, "Location is required"]
-    },
-    linkedIn: {
-        type: String,
-        trim: true
-    },
-    github: {
-        type: String,
-        trim: true
-    },
-    portfolio: {
-        type: String,
-        trim: true
     }
 }, { timestamps: true })
 
