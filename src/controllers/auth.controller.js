@@ -43,6 +43,7 @@ class Auth {
             })
 
         } catch (e) {
+            console.log(e);
             return res.status(500).json({
                 success: false,
                 message: "Something went wrong while registering"
@@ -90,10 +91,14 @@ class Auth {
             return res.status(200).json({
                 success: true,
                 message: "User logged in successfully",
-                user
+                body: {
+                    name: user.name,
+                    email: user.email
+                }
             })
 
         } catch (e) {
+            console.log(e);
             return res.status(500).json({
                 success: false,
                 message: "Something went wrong while logging in"
@@ -118,6 +123,7 @@ class Auth {
             })
         }
         catch (e) {
+            console.log(e);
             return res.status(500).json({
                 success: false,
                 message: "Something went wrong while getting current user"
@@ -134,6 +140,7 @@ class Auth {
             })
         }
         catch (e) {
+            console.log(e);
             return res.status(500).json({
                 success: false,
                 message: "Something went wrong while logging out"

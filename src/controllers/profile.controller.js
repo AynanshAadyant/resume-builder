@@ -6,6 +6,7 @@ import Skill from "../schemas/skills.schema.js";
 import workExperience from "../schemas/work.schema.js";
 import Miscellaneous from "../schemas/miscellanous.schema.js";
 import User from "../schemas/user.schema.js";
+import Profile from "../schemas/profile.schema.js";
 
 class Profile {
     constructor() { }
@@ -13,7 +14,16 @@ class Profile {
     async create(req, res) {
         try {
             const user = req.user;
-            const { workExperiences = [], Projects = [], Certifications = [], Education = [], Skills = [], Achievements = [], Miscellanous = [] } = req.body;
+            const { location, phoneNo, linkedIn, github, portfolio, workExperiences = [], Projects = [], Certifications = [], Education = [], Skills = [], Achievements = [], Miscellanous = [] } = req.body;
+
+            await Profile.create({
+                user,
+                location,
+                phoneNo,
+                linkedIn,
+                github,
+                portfolio
+            })
 
             if (workExperiences.length > 0) {
                 await workExperience.insertMany(workExperiences.map((w) => {

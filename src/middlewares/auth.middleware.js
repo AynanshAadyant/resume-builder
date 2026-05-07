@@ -1,7 +1,7 @@
 import User from "../schemas/user.schema.js";
 import cookie from "../utils/cookie.js";
 
-function isAuthenticated(req, res, next) {
+async function isAuthenticated(req, res, next) {
     try {
         const token = req.cookies?.ACCESS_TOKEN;
         if (!token) {
@@ -12,7 +12,7 @@ function isAuthenticated(req, res, next) {
         }
 
         try {
-            const decoded = cookie.decryptCookie(token);
+            const decoded = await cookie.decryptCookie(token);
             if (!decoded) {
                 return res.status(400).json({
                     success: false,
@@ -20,7 +20,7 @@ function isAuthenticated(req, res, next) {
                 })
             }
 
-            const user = User.findById(decoded.id).select("-password");
+            const user = await User.findById(decoded.id).select("-password");
             if (!user) {
                 return res.status(404).json({
                     success: false,
@@ -32,6 +32,7 @@ function isAuthenticated(req, res, next) {
             next();
         }
         catch (e) {
+            console.log(e)
             return res.status(500).json({
                 success: false,
                 message: "Invalid token"
