@@ -1,15 +1,13 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
-import { syncIndexes } from "mongoose";
-import { jd_parse_prompt } from "./prompts";
-import { response } from "express";
+import { jd_parse_prompt } from "./prompts.js";
 
-dotenv.config({ override: true });
+dotenv.config({ path: "../../.env", override: true });
 
 class AI {
     genai;
     constructor() {
-        this.genai = new GoogleGenerativeAI(process.env.AI_API_KEY);
+        this.genai = new GoogleGenAI({});
     }
 
     async parseJD(jd) {
@@ -32,4 +30,16 @@ class AI {
         }
     }
 
+    async testConnection() {
+        const response = await this.genai.models.generateContent({
+            model: "gemini-2.5-flash-lite",
+            contents: "Say Hi to me",
+        })
+
+        return response;
+    }
+
 }
+
+export default new AI()
+

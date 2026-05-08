@@ -1,5 +1,6 @@
 import JD from "../controllers/jd.controller.js";
 import { isAuthenticated } from "../middlewares/auth.middleware.js";
+import express from "express";
 
 const router = express.Router();
 

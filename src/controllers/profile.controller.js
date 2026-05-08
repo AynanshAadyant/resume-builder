@@ -8,7 +8,7 @@ import Miscellaneous from "../schemas/miscellanous.schema.js";
 import User from "../schemas/user.schema.js";
 import Profile from "../schemas/profile.schema.js";
 
-class Profile {
+class ProfileController {
     constructor() { }
 
     async create(req, res) {
@@ -312,4 +312,4 @@ class Profile {
     }
 }
 
-export default new Profile();
+export default new ProfileController();
