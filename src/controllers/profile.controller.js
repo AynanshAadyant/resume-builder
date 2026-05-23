@@ -105,15 +105,17 @@ class ProfileController {
     async get(req, res) {
         try {
             const user = req.user;
-            const { id } = req.params;
-            if (!user || !id) {
+            const id = req.params.id || user._id; // Fallback to current user if ID not in params
+            
+            if (!id) {
                 return res.status(400).json({
                     success: false,
                     message: "User or ID is required"
                 })
             }
 
-            const profile = await Promise.all([
+            const profileData = await Promise.all([
+                Profile.findOne({ user: id }),
                 workExperience.find({ user: id }),
                 Project.find({ user: id }),
                 Certification.find({ user: id }),
@@ -121,12 +123,21 @@ class ProfileController {
                 Skill.find({ user: id }),
                 Achievement.find({ user: id }),
                 Miscellaneous.find({ user: id })
-            ])
+            ]) 
 
             return res.status(200).json({
                 success: true,
                 message: "Profile fetched successfully",
-                data: profile
+                data: {
+                    profile : profileData[0],
+                    workExperiences: profileData[1],
+                    projects: profileData[2],
+                    certifications: profileData[3],
+                    education: profileData[4],
+                    skills: profileData[5],
+                    achievements: profileData[6],
+                    miscellaneous: profileData[7]
+                }
             })
 
 
@@ -207,15 +218,23 @@ class ProfileController {
 
     async update(req, res) {
         const user = req.user;
-        const { workExperiences = [], projects = [], certs = [], education = [], skills = [], achievements = [], miscellaneous = [] } = req.body;
+        const { location, phoneNo, linkedIn, github, portfolio, workExperiences = [], projects = [], certs = [], education = [], skills = [], achievements = [], miscellaneous = [] } = req.body;
 
         try {
+            // Update Base Profile
+            const existingProfile = await Profile.findOne({ user: user._id });
+            if (existingProfile) {
+                await Profile.findByIdAndUpdate(existingProfile._id, { location, phoneNo, linkedIn, github, portfolio });
+            } else if (location || phoneNo) { 
+                await Profile.create({ user: user._id, location, phoneNo, linkedIn, github, portfolio });
+            }
+
             if (workExperiences.length > 0) {
                 await Promise.all(workExperiences.map(async (w) => {
                     if (w._id) {
                         await workExperience.findByIdAndUpdate(w._id, w)
                     } else {
-                        await workExperience.create({ ...w, user })
+                        await workExperience.create({ ...w, user: user._id })
                     }
                 }))
             }
@@ -225,7 +244,7 @@ class ProfileController {
                     if (p._id) {
                         await Project.findByIdAndUpdate(p._id, p)
                     } else {
-                        await Project.create({ ...p, user })
+                        await Project.create({ ...p, user: user._id })
                     }
                 }))
             }
@@ -235,7 +254,7 @@ class ProfileController {
                     if (c._id) {
                         await Certification.findByIdAndUpdate(c._id, c)
                     } else {
-                        await Certification.create({ ...c, user })
+                        await Certification.create({ ...c, user: user._id })
                     }
                 }))
             }
@@ -245,7 +264,7 @@ class ProfileController {
                     if (e._id) {
                         await Education.findByIdAndUpdate(e._id, e)
                     } else {
-                        await Education.create({ ...e, user })
+                        await Education.create({ ...e, user: user._id })
                     }
                 }))
             }
@@ -255,7 +274,7 @@ class ProfileController {
                     if (s._id) {
                         await Skill.findByIdAndUpdate(s._id, s)
                     } else {
-                        await Skill.create({ ...s, user })
+                        await Skill.create({ ...s, user: user._id })
                     }
                 }))
             }
@@ -265,7 +284,7 @@ class ProfileController {
                     if (a._id) {
                         await Achievement.findByIdAndUpdate(a._id, a)
                     } else {
-                        await Achievement.create({ ...a, user })
+                        await Achievement.create({ ...a, user: user._id })
                     }
                 }))
             }
@@ -275,7 +294,7 @@ class ProfileController {
                     if (m._id) {
                         await Miscellaneous.findByIdAndUpdate(m._id, m)
                     } else {
-                        await Miscellaneous.create({ ...m, user })
+                        await Miscellaneous.create({ ...m, user: user._id })
                     }
                 }))
             }

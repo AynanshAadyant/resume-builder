@@ -26,7 +26,7 @@ class JD {
                 })
             }
 
-            const newJD = await JD.create({
+            const newJD = await Jd.create({
                 rawText: JD,
                 user
             });
