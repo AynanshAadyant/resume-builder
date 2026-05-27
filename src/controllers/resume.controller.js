@@ -3,6 +3,12 @@ import Profile from "../schemas/profile.schema.js";
 import JD from "../schemas/jd.schema.js";
 import workExperience from "../schemas/work.schema.js";
 import AI from "../services/ai.service.js";
+import Project from "../schemas/projects.schema.js";
+import Skill from "../schemas/skills.schema.js";
+import Education from "../schemas/education.schema.js";
+import Certification from "../schemas/certifications.schema.js";
+import Achievement from "../schemas/achievements.schema.js";
+import Miscellaneous from "../schemas/miscellanous.schema.js";
 class ResumeController {
     constructor() { }
 
@@ -48,22 +54,124 @@ class ResumeController {
 
             const existingResume = await Resume.findOne({
                 user: req.user.id,
-                profile: profileID
+                profile: profileID,
+                jd : jdID
             })
             if (existingResume) {
                 return res.status(400).json({
                     success: false,
-                    message: "Resume already exists for this profile"
+                    message: "Resume already exists for this profile",
+                    body : existingResume
                 })
             }
 
-            const workExp = await workExperience.findAll({ user: req.user.id })
-            const projects = await Project.findAll({ user: req.user.id })
-            const skills = await Skill.findAll({ user: req.user.id })
-            const education = await Education.findAll({ user: req.user.id })
-            const certifications = await Certification.findAll({ user: req.user.id })
-            const achievements = await Achievement.findAll({ user: req.user.id })
-            const miscellaneous = await Miscellaneous.findAll({ user: req.user.id })
+            const workExp = await workExperience.find({ user: req.user.id })
+            const projects = await Project.find({ user: req.user.id })
+            const skills = await Skill.find({ user: req.user.id })
+            const education = await Education.find({ user: req.user.id })
+            const certifications = await Certification.find({ user: req.user.id })
+            const achievements = await Achievement.find({ user: req.user.id })
+            const miscellaneous = await Miscellaneous.find({ user: req.user.id })
+
+            const data = {
+                workExp,
+                projects,
+                skills,
+                education,
+                certifications,
+                achievements,
+                miscellaneous
+            }
+
+            const resumeData = await AI.generateResume(data, jd);
+            if (!resumeData || resumeData === null) {
+                return res.status(500).json({
+                    success: false,
+                    mesaage: "Failed to process AI request"
+                })
+            }
+
+            const newResume = await Resume.create({
+                user,
+                profile: profileID,
+                ...resumeData
+            })
+
+            return res.status(201).json({
+                success: true,
+                message: "Resume created successfully",
+                resume: newResume
+            })
+        }
+        catch (e) {
+            console.log(e);
+            return res.status(500).json({
+                success: false,
+                message: "Something went wrong while creating resume"
+            })
+        }
+    }
+
+    async createResumeFromPrompt(req, res) {
+        try {
+            const { profileID, prompt } = req.body; //profile ID 
+            if (!profileID) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Profile ID is required"
+                })
+            }
+            if (!jdID) {
+                return res.status(500).json({
+                    success: false,
+                    message: "Invalid JD ID"
+                })
+            }
+
+            const profile = await Profile.findById(profileID);
+            if (!profile) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Profile not found"
+                })
+            }
+
+            const jd = await JD.findById(jdID);
+            if (!jd) {
+                return res.status(404).json({
+                    success: false,
+                    message: "JD not found"
+                })
+            }
+
+            const user = profile.user
+            if (user != req.user.id) {
+                return res.status(403).json({
+                    success: false,
+                    message: "You are not authorized to create resume for this profile"
+                })
+            }
+
+            const existingResume = await Resume.findOne({
+                user: req.user.id,
+                profile: profileID,
+                prompt
+            })
+            if (existingResume) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Resume already exists for this prompt",
+                    body: existingResume
+                })
+            }
+
+            const workExp = await workExperience.find({ user: req.user.id })
+            const projects = await Project.find({ user: req.user.id })
+            const skills = await Skill.find({ user: req.user.id })
+            const education = await Education.find({ user: req.user.id })
+            const certifications = await Certification.find({ user: req.user.id })
+            const achievements = await Achievement.find({ user: req.user.id })
+            const miscellaneous = await Miscellaneous.find({ user: req.user.id })
 
             const data = {
                 workExp,
@@ -150,6 +258,30 @@ class ResumeController {
                 success: false,
                 message: "Something went wrong while fetching resumes"
             })
+        }
+    }
+
+    async deleteResume(req, res) {
+        try {
+            const { id } = req.params;
+            const resume = await Resume.findOne({ _id: id, user: req.user.id });
+            if (!resume) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Resume not found"
+                });
+            }
+            await Resume.findByIdAndDelete(id);
+            return res.status(200).json({
+                success: true,
+                message: "Resume deleted successfully"
+            });
+        } catch (err) {
+            console.log(err);
+            return res.status(500).json({
+                success: false,
+                message: "Something went wrong while deleting resume"
+            });
         }
     }
 

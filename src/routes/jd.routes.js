@@ -4,7 +4,7 @@ import express from "express";
 
 const router = express.Router();
 
-router.route("/").post(isAuthenticated, JD.store);
+router.route("/").post(isAuthenticated, JD.store).get(isAuthenticated, JD.getAll);
 router.route("/:id").get(isAuthenticated, JD.get).delete(isAuthenticated, JD.delete);
 router.route("/parse/:id").post(isAuthenticated, JD.parse);
 

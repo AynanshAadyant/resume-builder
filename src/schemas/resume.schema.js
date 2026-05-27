@@ -5,6 +5,13 @@ const resumeSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     },
+    jd : {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "JD"
+    },
+    prompt: {
+        type: string,
+    },
     profile: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Profile"

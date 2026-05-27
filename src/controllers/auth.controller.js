@@ -40,6 +40,7 @@ class Auth {
             return res.status(201).json({
                 success: true,
                 message: "User registered successfully",
+                body : user
             })
 
         } catch (e) {

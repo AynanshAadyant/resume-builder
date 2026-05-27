@@ -50,7 +50,7 @@ class JD {
         const JDId = req.params.id;
 
         try {
-            const jd = await Jd.find({ _id: JDId, user });
+            const jd = await Jd.findOne({ _id: JDId, user });
             if (!jd) {
                 return res.status(404).json({
                     success: false,
@@ -128,6 +128,24 @@ class JD {
                 success: false,
                 message: "Internal server error"
             })
+        }
+    }
+
+    async getAll(req, res) {
+        const user = req.user;
+        try {
+            const jds = await Jd.find({ user });
+            return res.status(200).json({
+                success: true,
+                message: "JDs fetched successfully",
+                data: jds
+            });
+        } catch (e) {
+            console.log("ERROR while fetching JDs : ", e);
+            return res.status(500).json({
+                success: false,
+                message: "Internal server error"
+            });
         }
     }
 }
