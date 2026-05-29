@@ -121,10 +121,10 @@ class ResumeController {
                     message: "Profile ID is required"
                 })
             }
-            if (!jdID) {
-                return res.status(500).json({
+            if( !prompt ) {
+                return res.status( 400 ).json( {
                     success: false,
-                    message: "Invalid JD ID"
+                    message: "Prompt required"
                 })
             }
 
@@ -136,16 +136,8 @@ class ResumeController {
                 })
             }
 
-            const jd = await JD.findById(jdID);
-            if (!jd) {
-                return res.status(404).json({
-                    success: false,
-                    message: "JD not found"
-                })
-            }
-
             const user = profile.user
-            if (user != req.user.id) {
+            if (user != req.user._id) {
                 return res.status(403).json({
                     success: false,
                     message: "You are not authorized to create resume for this profile"
@@ -153,7 +145,7 @@ class ResumeController {
             }
 
             const existingResume = await Resume.findOne({
-                user: req.user.id,
+                user: req.user._id,
                 profile: profileID,
                 prompt
             })
@@ -165,13 +157,13 @@ class ResumeController {
                 })
             }
 
-            const workExp = await workExperience.find({ user: req.user.id })
-            const projects = await Project.find({ user: req.user.id })
-            const skills = await Skill.find({ user: req.user.id })
-            const education = await Education.find({ user: req.user.id })
-            const certifications = await Certification.find({ user: req.user.id })
-            const achievements = await Achievement.find({ user: req.user.id })
-            const miscellaneous = await Miscellaneous.find({ user: req.user.id })
+            const workExp = await workExperience.find({ user: req.user._id })
+            const projects = await Project.find({ user: req.user._id })
+            const skills = await Skill.find({ user: req.user._id })
+            const education = await Education.find({ user: req.user._id })
+            const certifications = await Certification.find({ user: req.user._id })
+            const achievements = await Achievement.find({ user: req.user._id })
+            const miscellaneous = await Miscellaneous.find({ user: req.user._id })
 
             const data = {
                 workExp,
@@ -183,7 +175,7 @@ class ResumeController {
                 miscellaneous
             }
 
-            const resumeData = await AI.generateResume(data, jd);
+            const resumeData = await AI.generateResumeFromPrompt(data, prompt);
             if (!resumeData || resumeData === null) {
                 return res.status(500).json({
                     success: false,
@@ -222,7 +214,7 @@ class ResumeController {
                     message: "Resume not found"
                 })
             }
-            if (resume.user != req.user.id) {
+            if (resume.user !== req.user._id) {
                 return res.status(403).json({
                     success: false,
                     message: "You are not authorized to fetch this resume"
@@ -245,7 +237,7 @@ class ResumeController {
 
     async getUserResumes(req, res) {
         try {
-            const resumes = await Resume.find({ user: req.user.id });
+            const resumes = await Resume.find({ user: req.user._id });
             return res.status(200).json({
                 success: true,
                 message: "Resumes fetched successfully",
@@ -264,7 +256,7 @@ class ResumeController {
     async deleteResume(req, res) {
         try {
             const { id } = req.params;
-            const resume = await Resume.findOne({ _id: id, user: req.user.id });
+            const resume = await Resume.findOne({ _id: id, user: req.user._id });
             if (!resume) {
                 return res.status(404).json({
                     success: false,

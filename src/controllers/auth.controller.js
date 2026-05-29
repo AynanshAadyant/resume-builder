@@ -3,7 +3,7 @@ import cookie from "../utils/cookie.js"
 class Auth {
 
     async register(req, res) {
-        const { name, email, password } = req.body
+        const { name, email, password } = req.body 
         if (!name || name === "") {
             return res.status(500).json({
                 success: false,
@@ -32,7 +32,7 @@ class Auth {
                 })
             }
 
-            const user = await User.create({ name, email, password });
+            const user = await User.create({ name, email, password }).select("-password" );
             const token = await cookie.generateCookie({
                 id: user._id
             });

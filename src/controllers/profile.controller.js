@@ -13,8 +13,8 @@ class ProfileController {
 
     async create(req, res) {
         try {
-            const user = req.user;
-            const { location, phoneNo, linkedIn, github, portfolio, workExperiences = [], Projects = [], Certifications = [], Education = [], Skills = [], Achievements = [], Miscellanous = [] } = req.body;
+            const user = req.user._id;
+            const { location, phoneNo, linkedIn, github, portfolio, workExperiences = [], projects = [], certifications = [], education = [], skills = [], achievements = [], miscellaneous = [] } = req.body;
 
             await Profile.create({
                 user,
@@ -34,8 +34,8 @@ class ProfileController {
                 }))
             }
 
-            if (Projects.length > 0) {
-                await Project.insertMany(Projects.map((p) => {
+            if (projects.length > 0) {
+                await Project.insertMany(projects.map((p) => {
                     return {
                         ...p,
                         user
@@ -43,8 +43,8 @@ class ProfileController {
                 }))
             }
 
-            if (Certifications.length > 0) {
-                await Certification.insertMany(Certifications.map((c) => {
+            if (certifications.length > 0) {
+                await Certification.insertMany(certifications.map((c) => {
                     return {
                         ...c,
                         user
@@ -52,8 +52,8 @@ class ProfileController {
                 }))
             }
 
-            if (Education.length > 0) {
-                await Education.insertMany(Education.map((e) => {
+            if (education.length > 0) {
+                await Education.insertMany(education.map((e) => {
                     return {
                         ...e,
                         user
@@ -61,8 +61,8 @@ class ProfileController {
                 }))
             }
 
-            if (Skills.length > 0) {
-                await Skill.insertMany(Skills.map((s) => {
+            if (skills.length > 0) {
+                await Skill.insertMany(skills.map((s) => {
                     return {
                         ...s,
                         user
@@ -70,8 +70,8 @@ class ProfileController {
                 }))
             }
 
-            if (Achievements.length > 0) {
-                await Achievement.insertMany(Achievements.map((a) => {
+            if (achievements.length > 0) {
+                await Achievement.insertMany(achievements.map((a) => {
                     return {
                         ...a,
                         user
@@ -79,8 +79,8 @@ class ProfileController {
                 }))
             }
 
-            if (Miscellanous.length > 0) {
-                await Miscellanous.insertMany(Miscellanous.map((m) => {
+            if (miscellaneous.length > 0) {
+                await Miscellaneous.insertMany(miscellaneous.map((m) => {
                     return {
                         ...m,
                         user
@@ -218,13 +218,13 @@ class ProfileController {
 
     async update(req, res) {
         const user = req.user;
-        const { location, phoneNo, linkedIn, github, portfolio, workExperiences = [], projects = [], certs = [], education = [], skills = [], achievements = [], miscellaneous = [] } = req.body;
+        const { location, phoneNo, linkedIn, github, portfolio, workExperiences = [], projects = [], certifications = [], education = [], skills = [], achievements = [], miscellaneous = [] } = req.body;
 
         try {
             // Update Base Profile
             const existingProfile = await Profile.findOne({ user: user._id });
             if (existingProfile) {
-                await Profile.findByIdAndUpdate(existingProfile._id, { location, phoneNo, linkedIn, github, portfolio });
+                await Profile.findOneAndUpdate({_id : existingProfile._id, user : user._id}, { location, phoneNo, linkedIn, github, portfolio });
             } else if (location || phoneNo) { 
                 await Profile.create({ user: user._id, location, phoneNo, linkedIn, github, portfolio });
             }
@@ -249,8 +249,8 @@ class ProfileController {
                 }))
             }
 
-            if (certs.length > 0) {
-                await Promise.all(certs.map(async (c) => {
+            if (certifications.length > 0) {
+                await Promise.all(certifications.map(async (c) => {
                     if (c._id) {
                         await Certification.findByIdAndUpdate(c._id, c)
                     } else {
