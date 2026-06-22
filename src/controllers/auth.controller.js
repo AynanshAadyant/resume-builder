@@ -56,17 +56,14 @@ class Auth {
 
     async login(req, res) {
         const { email, password } = req.body
-        console.log( "Inside login" );
 
         if (!email || email === "") {
-            console.log( "Missing email" );
             return res.status(500).json({
                 success: false,
                 message: "Email is required"
             })
         }
         if (!password || password === "") {
-            console.log( "Missing Password" );
             return res.status(500).json({
                 success: false,
                 message: "Password is required"
@@ -75,7 +72,6 @@ class Auth {
 
         try {
 
-            console.log( "Checking user data " );
             const user = await User.findOne({ email })
             if (!user) {
                 console.log( "User not found" );
@@ -84,23 +80,18 @@ class Auth {
                     message: "User not found"
                 })
             }
-            console.log( "Matching password" );
             const isMatch = await user.matchPassword(password)
             if (!isMatch) {
-                console.log( "Password mismatch" );
                 return res.status(500).json({
                     success: false,
                     message: "Invalid password"
                 })
             }
             
-            console.log( "Generating token" );
             const token = await cookie.generateCookie({
                 id: user._id
             });
-            console.log( "Setting token" );
             res.cookie("ACCESS_TOKEN", token, cookie.cookieOptions);
-            console.log( "Token set, login successful" );
             return res.status(200).json({
                 success: true,
                 message: "User logged in successfully",

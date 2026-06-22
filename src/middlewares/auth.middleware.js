@@ -10,7 +10,7 @@ async function isAuthenticated(req, res, next) {
                 message: "Unauthorised"
             })
         }
-
+        
         try {
             const decoded = await cookie.decryptCookie(token);
             if (!decoded) {
