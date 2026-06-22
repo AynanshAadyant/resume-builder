@@ -1,28 +1,42 @@
-import { GoogleGenAI } from "@google/genai";
+import { Mistral } from '@mistralai/mistralai';
 import dotenv from "dotenv";
 import { jd_parse_prompt, resume_generate_prompt, custom_resume_generate_prompt } from "./prompts.js";
 
-dotenv.config({ path: "../../.env", override: true });
+dotenv.config({ override: true });
 
 class AI {
-    genai;
+    client;
     constructor() {
-        this.genai = new GoogleGenAI({});
+        this.client = new Mistral({apiKey : process.env.MISTRAL_API_KEY});
     }
 
     async parseJD(jd) {
         try {
-            const response = await this.genai.models.generateContent({
-                model: "gemini-2.5-flash-lite",
-                contents: jd,
-                config: {
-                    systemInstruction: jd_parse_prompt,
-                    responseMimeType: "application/json"
-                }
+            const response = await this.client.chat.complete({
+                model: "mistral-small-2603",
+                messages: [
+                    {
+                        role: "system", content: jd_parse_prompt
+                    },
+                    {
+                        role: "user", content: jd
+                    }
+                ]
             })
 
-            const jsonText = response.response.text();
-            return JSON.parse(jsonText);
+            const content = response.choices?.[0]?.message?.content;
+
+            if (typeof content !== "string") {
+                return content;
+            }
+
+            try {
+                return JSON.parse(content);
+            } catch (parseError) {
+                console.error("Failed to parse AI response:", content);
+                return null;
+            }
+
         }
         catch (e) {
             console.log("AI error: ", e);
@@ -32,17 +46,29 @@ class AI {
 
     async generateResume(user,jd) {
         try {
-            const response = await this.genai.models.generateContent({
-                model: "gemini-2.5-flash-lite",
-                contents: `USER DATA: ${JSON.stringify(user)}\n\nJOB DESCRIPTION: ${JSON.stringify(jd)}`,
-                config: {
-                    systemInstruction: resume_generate_prompt,
-                    responseMimeType: "application/json"
-                }
+            const response = await this.client.chat.complete({
+                model: "mistral-small-2603",
+                messages: [
+                    {
+                        role: "system", content: resume_generate_prompt
+                    },
+                    {
+                        role: "user",
+                        content: `USER DATA: ${JSON.stringify(user)}\n\nJOB DESCRIPTION: ${JSON.stringify(jd)}`
+                    }
+                ]
             })
-
-            const jsonText = response.response.text();
-            return JSON.parse(jsonText);
+            const content = response.choices?.[0]?.message?.content;
+            if( typeof content !== "string" ) {
+                return content;
+            }
+            try {
+                return JSON.parse( content );
+            }
+            catch( e ) {
+                console.log( "Failed to parse AI response", content );
+                return null;
+            }
         }
         catch (e) {
             console.log("AI error: ", e);
@@ -52,17 +78,29 @@ class AI {
 
     async generateResumeFromPrompt( user, prompt) {
         try {
-            const response = await this.genai.models.generateContent({
-                model: "gemini-2.5-flash-lite",
-                contents: `USER DATA: ${JSON.stringify(user)}\n\nJOB DESCRIPTION: ${JSON.stringify(jd)}`,
-                config: {
-                    systemInstruction: custom_resume_generate_prompt,
-                    responseMimeType: "application/json"
-                }
+            const response = await this.client.chat.complete({
+                model: "mistral-small-2603",
+                messages: [
+                    {
+                        role: "system", content: custom_resume_generate_prompt
+                    },
+                    {
+                        role: "user",
+                        content: `USER DATA: ${JSON.stringify(user)}\n\nJOB DESCRIPTION: ${JSON.stringify(jd)}`
+                    }
+                ]
             })
-
-            const jsonText = response.response.text();
-            return JSON.parse(jsonText);
+            const content = response.choices?.[0]?.message?.content;
+            if( typeof content !== "string" ) {
+                return content;
+            }
+            try {
+                return JSON.parse( content );
+            }
+            catch( e ) {
+                console.log( "Failed to parse AI response", content );
+                return null;
+            }
         }
         catch (e) {
             console.log("AI error: ", e);
@@ -71,12 +109,23 @@ class AI {
     }
 
     async testConnection() {
-        const response = await this.genai.models.generateContent({
-            model: "gemini-2.5-flash-lite",
-            contents: "Say Hi to me",
-        })
+        try{
+            const response = await this.client.chat.complete({
+                model: "mistral-small-2603",
+                messages: [
+                    {
+                        role: "user", content: "Say HI if you can listen to me"
+                    }
+                ]
+            })
+            const content = response?.choices?.[0]?.message?.content;
 
-        return response;
+            return content;
+        }
+        catch(e) {
+            console.log( "AI ERROR : ", e );
+            return null;
+        }
     }
 
 }

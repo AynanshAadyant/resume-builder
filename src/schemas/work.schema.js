@@ -17,11 +17,11 @@ const workSchema = new mongoose.Schema({
         trim: true
     },
     startDate: {
-        type: Date,
+        type: String,
         required: [true, "Start date is required"]
     },
     endDate: {
-        type: Date,
+        type: String,
         required: [true, "End date is required"]
     },
     type: {

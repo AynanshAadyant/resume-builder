@@ -6,7 +6,7 @@ class Cookie {
         const isDev = process.env.STATUS === "DEV";
         this.cookieOptions = isDev ?
             {
-                maxAge: 10 * 60 * 60 * 24,
+                maxAge: 10 *1000 * 60 * 60 * 24,
                 httpOnly: true,
                 secure: true,
                 sameSite: "strict"

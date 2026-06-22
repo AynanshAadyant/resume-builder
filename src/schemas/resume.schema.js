@@ -5,12 +5,28 @@ const resumeSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     },
+    title : {
+        type: String,
+        default: ""
+    },
+    company : {
+        type : String,
+        default: ""
+    },
+    role : {
+        type: String,
+        default: ""
+    },
+    ats: {
+        type: Number,
+        default: 0
+    },
     jd : {
         type: mongoose.Schema.Types.ObjectId,
         ref: "JD"
     },
     prompt: {
-        type: string,
+        type: String,
     },
     profile: {
         type: mongoose.Schema.Types.ObjectId,
@@ -63,8 +79,10 @@ const resumeSchema = new mongoose.Schema({
         }
     }],
     skills: [{
-        type: String,
-        trim: true
+        category : String,
+        values : [{
+            type: String}
+        ]
     }],
     education: [{
         institution: {
@@ -129,7 +147,7 @@ const resumeSchema = new mongoose.Schema({
             type: String
         }]
     }]
-})
+}, { timestamps: true})
 
 const Resume = mongoose.model("Resume", resumeSchema);
 export default Resume;

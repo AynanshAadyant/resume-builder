@@ -32,15 +32,17 @@ class Auth {
                 })
             }
 
-            const user = await User.create({ name, email, password }).select("-password" );
+            const user = await User.create({ name, email, password });
             const token = await cookie.generateCookie({
                 id: user._id
             });
+            const userData = user.toObject;
+            delete userData.password;
             res.cookie("ACCESS_TOKEN", token, cookie.cookieOptions);
             return res.status(201).json({
                 success: true,
                 message: "User registered successfully",
-                body : user
+                body : userData
             })
 
         } catch (e) {
@@ -93,6 +95,7 @@ class Auth {
                 success: true,
                 message: "User logged in successfully",
                 body: {
+                    _id: user._id,
                     name: user.name,
                     email: user.email
                 }
@@ -147,6 +150,23 @@ class Auth {
                 message: "Something went wrong while logging out"
             })
         }
+    }
+
+    async update( req, res ) {
+        const user = req.user._id;
+        const { name } = req.body;
+        if( !name || name.trim() === "" ) {
+            return res.status( 500 ).json( {
+                success: false,
+                message: "Name required"
+            })
+        }
+
+        await User.findByIdAndUpdate( user, { name } );
+        return res.status( 200 ).json( {
+            success: true,
+            message: "User details updated successfully"
+        })
     }
 }
 

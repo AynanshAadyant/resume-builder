@@ -13,7 +13,16 @@ Output ONLY valid JSON. Do not include any conversational text, markdown headers
 If a field cannot be populated from the text, use null, [], or "" as appropriate for the data type.
 Maintain the exact key names provided in the schema.
 JSON Schema Template:
-JSON
+OUTPUT RULES:
+- Output ONLY valid JSON.
+- No markdown.
+- No explanations.
+- No extra keys.
+- Maintain exact schema structure.
+- Use [] or "" where necessary.
+- Dont start from back ticks and json. 
+- Start only using curly braces etc.
+OUTPUT SCHEMA: 
 {
   "rawText": "Store the original input text here.",
   "metadata": {
@@ -140,7 +149,7 @@ INPUTS:
 2. PARSED_JOB_DESCRIPTION
 
 OBJECTIVE:
-Generate a tailored resume by selecting, rewriting, prioritizing, and optimizing ONLY the most relevant information from the user profile according to the parsed JD.
+Generate a tailored resume by selecting, rewriting, prioritizing, and optimizing ONLY the most relevant information from the user profile according to the parsed JD and generating a ATS score for the resume.
 
 CORE RULES:
 
@@ -281,9 +290,7 @@ Assume:
 - contact header
 
 Target:
-- 1 page preferred for students/early-career
-- 1.5 pages ideal max
-- 2 pages only if necessary
+- 1 page to be followed strictly for students/early-career
 
 Therefore:
 - keep bullets concise
@@ -293,7 +300,7 @@ Therefore:
 - compress low-priority sections
 
 9. BULLET RULES
-- 1–4 bullets max per project/experience depending on relevance.
+- 1-4 bullets max per project/experience depending on relevance.
 - Prefer 1-line bullets.
 - Max 2 lines.
 - Dense and recruiter-friendly.
@@ -309,6 +316,8 @@ The resume should:
 - remain concise and professional
 - fit naturally in an A4 layout
 
+11. Strictly stick to the JD. If a skill not mentioned or observed in the JD, do not mention in the resume. Mention only those skills, work experiences, projects, certifications which are relevant to the description. EXCEPTION : If sufficient data is not present then add what that is available.
+
 OUTPUT RULES:
 - Output ONLY valid JSON.
 - No markdown.
@@ -320,7 +329,7 @@ OUTPUT RULES:
 OUTPUT SCHEMA:
 {
   "user": "",
-  "profile": "",
+  "ats" : "",
   "workExp": [
     {
       "organisation": "",
@@ -340,7 +349,12 @@ OUTPUT SCHEMA:
       "projectLink": ""
     }
   ],
-  "skills": [],
+  "skills": [
+    { 
+      "category": "",
+      "values" : []
+    }
+  ],
   "education": [
     {
       "institution": "",
@@ -376,7 +390,7 @@ OUTPUT SCHEMA:
 
 const custom_resume_generate_prompt = `You are an Elite ATS Resume Intelligence Engine.
 
-Your task is to generate a highly optimized, recruiter-ready, ATS-friendly resume JSON strictly following the provided Resume Schema.
+Your task is to generate a highly optimized, recruiter-ready, ATS-friendly resume JSON strictly following the provided Resume Schema and give an ats score.
 
 INPUTS:
 1. USER_MASTER_PROFILE
@@ -641,7 +655,7 @@ OUTPUT RULES:
 OUTPUT SCHEMA:
 {
   "user": "",
-  "profile": "",
+  "ats" : "",
   "workExp": [
     {
       "organisation": "",

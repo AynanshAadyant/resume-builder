@@ -7,7 +7,7 @@ class JD {
     async store(req, res) {
         const user = req.user;
         const { JD } = req.body;
-
+        console.log("Storing JD" );
         try {
             if (!JD || JD.trim() === "") {
                 return res.status(401).json({
@@ -30,7 +30,7 @@ class JD {
                 rawText: JD,
                 user
             });
-
+            console.log( "JD stored" );
             return res.status(201).json({
                 success: true,
                 message: "JD stored successfully",
@@ -48,7 +48,7 @@ class JD {
     async parse(req, res) {
         const user = req.user;
         const JDId = req.params.id;
-
+        console.log("Parsing JD" );
         try {
             const jd = await Jd.findOne({ _id: JDId, user });
             if (!jd) {
@@ -57,11 +57,19 @@ class JD {
                     message: "JD not found"
                 })
             }
-
+            if( jd.parsedText &&
+    Object.keys(jd.parsedText).length > 0 ) {
+                console.log("Parsed Data already exists" );
+                return res.status( 200 ).json( {
+                    success: true,
+                    message: "Parsed Data already exists",
+                    data: jd.parsedText
+                })
+            }
             const parsedJD = await AI.parseJD(jd.rawText);
             jd.parsedText = parsedJD;
             await jd.save();
-
+            console.log("Parsed JD" );
             return res.status(200).json({
                 success: true,
                 message: "JD parsed successfully",

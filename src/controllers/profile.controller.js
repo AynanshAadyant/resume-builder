@@ -105,7 +105,7 @@ class ProfileController {
     async get(req, res) {
         try {
             const user = req.user;
-            const id = req.params.id || user._id; // Fallback to current user if ID not in params
+            const id = user._id; // Fallback to current user if ID not in params
             
             if (!id) {
                 return res.status(400).json({
