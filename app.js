@@ -5,6 +5,8 @@ import dotenv from "dotenv"
 
 dotenv.config()
 
+console.log( process.env.FRONTEND_URL )
+
 const app = express();
 
 // MIDDLEWARES
