@@ -67,7 +67,15 @@ class JD {
                 })
             }
             const parsedJD = await AI.parseJD(jd.rawText);
-            jd.parsedText = parsedJD;
+            //checks if valid JD, if gibberish then false
+            if( !parsedJD.valid ) {
+                await Jd.findByIdAndDelete( JDId );
+                return res.status( 200 ).json( {
+                    success: false,
+                    message: "Invalid JD"
+                })
+            }
+            jd.parsedText = parsedJD.jd;
             await jd.save();
             console.log("Parsed JD" );
             return res.status(200).json({

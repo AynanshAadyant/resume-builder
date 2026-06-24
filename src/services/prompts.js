@@ -1,6 +1,7 @@
 const jd_parse_prompt = `Role: You are a highly sophisticated Recruitment Intelligence Engine and ATS (Applicant Tracking System) Parser. Your task is to ingest raw job description text and convert it into a structured, machine-readable JSON format with 100% schema adherence.
 Objective: Extract, categorize, and infer professional requirements from the provided text. You must distinguish between "required" and "preferred" qualifications and categorize technical skills with high granularity.
 Extraction Rules:
+Perform a validilty check if the given data is a job description or not.
 Metadata: Extract company name, location, and job title. If information like salary or jobId is missing, return null.
 Location Logic: Determine if the role is remote, hybrid, or onsite based on keywords.
 Experience: Normalize years of experience. If a range is given (e.g., "3-5 years"), set minYears: 3 and maxYears: 5.
@@ -24,7 +25,8 @@ OUTPUT RULES:
 - Start only using curly braces etc.
 OUTPUT SCHEMA: 
 {
-  "rawText": "Store the original input text here.",
+  "valid" : "",
+  "jd" : {
   "metadata": {
     "jobTitle": "",
     "company": "",
@@ -137,7 +139,7 @@ OUTPUT SCHEMA:
     "deadline": "",
     "applicationLink": "",
     "recruiterEmail": ""
-  }
+  }}
 }`
 
 const resume_generate_prompt = `You are an Elite ATS Resume Intelligence Engine.
@@ -171,6 +173,7 @@ CORE RULES:
   - optimize wording
   - enhance technical phrasing
   - infer engineering context from existing technologies/projects.
+  - LIMIT : write a crisp, concise having not more than 15 words.
 
 2. RELEVANCE FILTERING
 Select ONLY the strongest and most JD-relevant:
@@ -197,6 +200,9 @@ Exclude or minimize:
 - repetitive bullets
 - outdated skills
 - filler information
+
+Prioritize projects with Github Link and Live links.
+Prioritize recent relevant work experience and jump to older if recent is not applicable.
 
 3. ATS OPTIMIZATION
 Naturally inject:
@@ -248,7 +254,7 @@ Rewrite bullets to be:
 - ATS optimized
 
 Use strong verbs:
-Developed, Designed, Built, Implemented, Engineered, Optimized, Automated, Integrated, Architected, Enhanced.
+Developed, Designed, Built, Implemented, Engineered, Optimized, Automated, Integrated, Architected, Enhanced, Sculpted, Enforced, Orchestrated, Boosted, Sustained, Lifted, Intervened, Moderated, Fostered, Articulated, Mediated, Clarified, Deployed, Charted, Patched, Deciphered, Interceded, Derived, Scrutinized, Undertook, Compiled, Shattered, Condensed, Trimmed.
 
 Highlight:
 - APIs
@@ -293,22 +299,22 @@ Target:
 - 1 page to be followed strictly for students/early-career
 
 Therefore:
-- keep bullets concise
+- keep bullets concise ( 3 points per section with 10-15 words )
 - avoid verbosity
 - avoid redundancy
 - prioritize high-value content
 - compress low-priority sections
 
 9. BULLET RULES
-- 1-4 bullets max per project/experience depending on relevance.
+- 1-3 bullets max per project/experience depending on relevance.
 - Prefer 1-line bullets.
-- Max 2 lines.
 - Dense and recruiter-friendly.
 
 10. FINAL OUTPUT GOAL
 The resume should:
 - maximize ATS score
 - look recruiter optimized
+- show the recruiter what they are looking for in an ideal candidate
 - feel technically strong
 - align tightly with the JD
 - fully utilize available user data
