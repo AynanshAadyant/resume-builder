@@ -135,7 +135,6 @@ class Auth {
             })
         }
     }
-
     async logout(req, res) {
         try {
             res.clearCookie("ACCESS_TOKEN");

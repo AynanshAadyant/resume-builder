@@ -68,7 +68,7 @@ class JD {
             }
             const parsedJD = await AI.parseJD(jd.rawText);
             //checks if valid JD, if gibberish then false
-            if( !parsedJD.valid ) {
+            if( !parsedJD.valid || parsedJD.valid === 'false' ) {
                 await Jd.findByIdAndDelete( JDId );
                 return res.status( 200 ).json( {
                     success: false,

@@ -14,8 +14,24 @@ class ProfileController {
     async create(req, res) {
         try {
             const user = req.user._id;
-            const { location, phoneNo, linkedIn, github, portfolio, workExperiences = [], projects = [], certifications = [], education = [], skills = [], achievements = [], miscellaneous = [] } = req.body;
+            let { location="", phoneNo, linkedIn="", github="", portfolio="", workExperiences = [], projects = [], certifications = [], education = [], skills = [], achievements = [], miscellaneous = [] } = req.body;
 
+            if( !location || location.trim() === "" ) {
+                return res.status( 400 ).json( {
+                    success: false,
+                    message: "Location required"
+                })
+            }
+            if( !phoneNo || phoneNo.trim() === "" ) {
+                return res.status( 400 ).json( {
+                    success: false,
+                    message: "Phone number required"
+                })
+            }
+
+            if( typeof phoneNo === "string" )
+                phoneNo = Number( phoneNo )
+                
             await Profile.create({
                 user,
                 location,
