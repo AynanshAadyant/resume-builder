@@ -32,7 +32,7 @@ class ProfileController {
             if( typeof phoneNo === "string" )
                 phoneNo = Number( phoneNo )
                 
-            await Profile.create({
+            const profile = await Profile.create({
                 user,
                 location,
                 phoneNo,
@@ -41,72 +41,74 @@ class ProfileController {
                 portfolio
             })
 
-            if (workExperiences.length > 0) {
-                await workExperience.insertMany(workExperiences.map((w) => {
+            const workEx = workExperiences.length > 0 ? await workExperience.insertMany(workExperiences.map((w) => {
                     return {
                         ...w,
                         user
                     }
-                }))
-            }
+                })) : [];
 
-            if (projects.length > 0) {
+            const proj = projects.length > 0 ?
                 await Project.insertMany(projects.map((p) => {
                     return {
                         ...p,
                         user
                     }
-                }))
-            }
+                })) : [];
 
-            if (certifications.length > 0) {
+            const certs = certifications.length > 0 ? 
                 await Certification.insertMany(certifications.map((c) => {
                     return {
                         ...c,
                         user
                     }
-                }))
-            }
+                })) : [];
 
-            if (education.length > 0) {
+            const edu = education.length > 0 ? 
                 await Education.insertMany(education.map((e) => {
                     return {
                         ...e,
                         user
                     }
-                }))
-            }
+                })) : [];
 
-            if (skills.length > 0) {
+            const sk = skills.length > 0 ? 
                 await Skill.insertMany(skills.map((s) => {
                     return {
                         ...s,
                         user
                     }
-                }))
-            }
+                })) : [];
 
-            if (achievements.length > 0) {
+            const achieve = achievements.length > 0 ? 
                 await Achievement.insertMany(achievements.map((a) => {
                     return {
                         ...a,
                         user
                     }
-                }))
-            }
+                })) : [];
 
-            if (miscellaneous.length > 0) {
+            const misc = miscellaneous.length > 0 ? 
                 await Miscellaneous.insertMany(miscellaneous.map((m) => {
                     return {
                         ...m,
                         user
                     }
-                }))
-            }
+                })) : [];
 
             return res.status(200).json({
                 success: true,
-                message: "Profile created successfully"
+                message: "Profile created successfully",
+                data: {
+                    profile,
+                    workExperiences: workEx,
+                    projects: proj,
+                    certifications: certs, 
+                    education: edu,
+                    skills: sk,
+                    achievements: achieve,
+                    miscellaneous: misc
+                }
             })
         }
         catch (e) {
@@ -121,7 +123,7 @@ class ProfileController {
     async get(req, res) {
         try {
             const user = req.user;
-            const id = user._id; // Fallback to current user if ID not in params
+            const id = user._id; 
             
             if (!id) {
                 return res.status(400).json({
@@ -317,14 +319,33 @@ class ProfileController {
 
             return res.status(200).json({
                 success: true,
-                message: "Profile updated successfully"
+                message: "Profile updated successfully",
+                data: {
+                    profile : {
+                        user,
+                        location,
+                        phoneNo,
+                        linkedIn,
+                        github,
+                        portfolio 
+
+                    },
+                    workExperiences,
+                    projects,
+                    certifications,
+                    education,
+                    skills,
+                    achievements,
+                    miscellaneous
+                }
             });
         }
         catch (e) {
             console.log("ERROR while updating profile :", e);
             return res.status(500).json({
                 success: false,
-                message: "Something went wrong while updating profile"
+                message: "Something went wrong while updating profile",
+
             })
         }
     }

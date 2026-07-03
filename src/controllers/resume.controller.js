@@ -249,7 +249,6 @@ class ResumeController {
     async getUserResumes(req, res) {
         try {
             const resumes = await Resume.find({ user: req.user._id })
-            console.log("Resumes fetched successfully");
             return res.status(200).json({
                 success: true,
                 message: "Resumes fetched successfully",
