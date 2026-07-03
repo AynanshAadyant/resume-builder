@@ -57,8 +57,11 @@ Handles operations related to Job Descriptions (JDs) for resume tailoring.
 *(Note: Please ensure `resumeRoutes` is imported and used in the main application file)*
 Handles the generation, retrieval, and management of user resumes.
 
-- **`POST /api/resume/`**
-  *(Protected)* Creates a new resume for the authenticated user.
+- **`POST /api/resume/create`**
+  *(Protected)* Creates a new resume for the authenticated user using job description and user profile data.
+
+- **`POST /api/resume/create/prompt`**
+  *(Protected)* Creates a new resume for the authenticated user using prompt provided and user profile data.
 
 - **`GET /api/resume/:id`**
   *(Protected)* Retrieves a specific resume by its ID.

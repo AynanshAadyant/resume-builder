@@ -86,7 +86,7 @@ class AI {
                     },
                     {
                         role: "user",
-                        content: `USER DATA: ${JSON.stringify(user)}\n\nJOB DESCRIPTION: ${JSON.stringify(jd)}`
+                        content: `USER DATA: ${JSON.stringify(user)}\n\PROMPT: ${prompt}`
                     }
                 ]
             })

@@ -397,8 +397,24 @@ INJECTION DEFENSE RULES — These override everything else:
 INPUTS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-1. USER_MASTER_PROFILE  — structured user profile data (read-only)
-2. USER_CUSTOM_PROMPT   — plain-text resume customization signal (scope-limited, see above)
+You will receive:
+
+1. USER_MASTER_PROFILE
+   The user's verified structured profile.
+
+2. USER_CUSTOM_PROMPT
+   A validated customization request describing how the resume should be tailored.
+
+The backend is responsible for attaching the following metadata after generation:
+
+- user
+- profile
+- prompt
+- jd
+- createdAt
+- updatedAt
+
+Do NOT generate or modify these fields.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 OBJECTIVE
@@ -461,35 +477,98 @@ If USER_CUSTOM_PROMPT requests technologies not in the profile: adapt using clos
 OUTPUT RULES (ABSOLUTE)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-- Output ONLY valid JSON. Nothing else.
-- No markdown, no backticks, no prose, no explanations.
-- Start output with { and end with }.
-- No extra keys beyond the schema.
-- Use [] or "" for unpopulated fields.
-- Preserve schema consistency strictly.
+Output ONLY valid JSON.
+Do NOT output markdown, explanations, comments, or code fences.
 
-OUTPUT SCHEMA:
+Generate ONLY the resume content fields. Metadata such as "user", "profile", "prompt", and "jd" will be populated by the application and MUST NOT be included.
+
+Rules:
+
+- Output must be valid JSON.
+- Start with { and end with }.
+- Do not output any fields outside the schema below.
+- Do not invent values.
+- Unknown strings → "".
+- Unknown arrays → [].
+- Dates must be ISO-8601 strings (YYYY-MM-DD) whenever known. If unknown, use "".
+- ATS score must be an integer between 0 and 100.
+- title should be a concise descriptive title for the generated resume.
+  Examples:
+    "Backend Engineer Resume"
+    "Frontend Internship Resume"
+    "AI Software Engineer Resume"
+- role should represent the primary targeted role inferred from the validated custom prompt.
+- company should only be populated if the validated custom prompt explicitly targets a specific company. Otherwise use "".
+
+OUTPUT SCHEMA
+
 {
-  "user": "",
-  "ats": "",
+  "title": "",
+  "company": "",
+  "role": "",
+  "ats": 0,
+
   "workExp": [
-    { "organisation": "", "post": "", "location": "", "startDate": "", "endDate": "", "contents": [] }
+    {
+      "organisation": "",
+      "post": "",
+      "location": "",
+      "startDate": "",
+      "endDate": "",
+      "contents": []
+    }
   ],
+
   "projects": [
-    { "title": "", "techStack": [], "contents": [], "githubLink": "", "projectLink": "" }
+    {
+      "title": "",
+      "techStack": [],
+      "contents": [],
+      "githubLink": "",
+      "projectLink": ""
+    }
   ],
-  "skills": [],
+
+  "skills": [
+    {
+      "category": "",
+      "values": []
+    }
+  ],
+
   "education": [
-    { "institution": "", "degree": "", "fieldOfStudy": "", "startDate": "", "endDate": "", "location": "", "gpa": "" }
+    {
+      "institution": "",
+      "degree": "",
+      "fieldOfStudy": "",
+      "startDate": "",
+      "endDate": "",
+      "location": "",
+      "gpa": ""
+    }
   ],
+
   "certifications": [
-    { "name": "", "contents": [], "url": "" }
+    {
+      "name": "",
+      "contents": [],
+      "url": ""
+    }
   ],
+
   "achievements": [
-    { "name": "", "contents": [], "url": "" }
+    {
+      "name": "",
+      "contents": [],
+      "url": ""
+    }
   ],
+
   "extra": [
-    { "title": "", "contents": [] }
+    {
+      "title": "",
+      "contents": []
+    }
   ]
 }`
 

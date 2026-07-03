@@ -121,7 +121,7 @@ class ResumeController {
 
     async createResumeFromPrompt(req, res) {
         try {
-            const { profileID, prompt } = req.body; //profile ID 
+            const { profileID, prompt } = req.body; //profile ID
             if (!profileID) {
                 return res.status(400).json({
                     success: false,
@@ -137,18 +137,19 @@ class ResumeController {
 
             const profile = await Profile.findById(profileID);
             if (!profile) {
+                console.log( "Missing profile" );
                 return res.status(404).json({
                     success: false,
                     message: "Profile not found"
                 })
             }
-
+            
             const user = profile.user
-            if (user != req.user._id) {
+            if (!profile.user.equals(req.user._id)) {
                 return res.status(403).json({
                     success: false,
                     message: "You are not authorized to create resume for this profile"
-                })
+                });
             }
 
             const existingResume = await Resume.findOne({
@@ -190,10 +191,10 @@ class ResumeController {
                 })
             }
 
-            const newResume = await Resume.insert({
+            const newResume = await Resume.insertOne({
                 user,
-                profile: profileID,
-                jd : jdID,
+                profile,
+                prompt,
                 workExp : resumeData.workExp || [],
                 projects : resumeData.projects || [],
                 skills : resumeData.skills || [],
@@ -201,9 +202,6 @@ class ResumeController {
                 certifications : resumeData.certifications || [],
                 achievements : resumeData.achievements || [],
                 extra: resumeData.extra || [],
-                company: jd.parsedText.metadata.company || "",
-                title: jd.parsedText.metadata.jobTitle || "",
-                role: jd.parsedText.metadata.jobTitle || "",
                 ats : resumeData.ats || 0
             })
 
