@@ -7,7 +7,7 @@ const profileSchema = new mongoose.Schema({
         required: true
     },
     phoneNo: {
-        type: Number,
+        type: String,
         required: [true, "Phone number is required"],
         unique: [true, "Phone number already exist"],
         trim: true

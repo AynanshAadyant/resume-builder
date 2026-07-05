@@ -10,19 +10,27 @@ class AI {
         this.client = new Mistral({apiKey : process.env.MISTRAL_API_KEY});
     }
 
+    stripExtra(content) {
+    return content
+        .replace(/^```[a-zA-Z]*\s*/, "")
+        .replace(/\s*```$/, "")
+        .trim();
+}
+
     async parseJD(jd) {
         try {
             const response = await this.client.chat.complete({
-                model: "mistral-small-2603",
-                messages: [
-                    {
-                        role: "system", content: jd_parse_prompt
-                    },
-                    {
-                        role: "user", content: jd
-                    }
-                ]
-            })
+            model: "mistral-small-latest",
+            messages: [
+                {
+                    role: "system",
+                    content: jd_parse_prompt
+                },
+                {
+                    role: "user",
+                    content: jd
+                }
+            ]});
 
             const content = response.choices?.[0]?.message?.content;
 
@@ -31,7 +39,7 @@ class AI {
             }
 
             try {
-                return JSON.parse(content);
+                return JSON.parse(this.stripExtra( content ) );
             } catch (parseError) {
                 console.error("Failed to parse AI response:", content);
                 return null;
@@ -63,7 +71,7 @@ class AI {
                 return content;
             }
             try {
-                return JSON.parse( content );
+                return JSON.parse( this.stripExtra(content) );
             }
             catch( e ) {
                 console.log( "Failed to parse AI response", content );
@@ -95,7 +103,7 @@ class AI {
                 return content;
             }
             try {
-                return JSON.parse( content );
+                return JSON.parse( this.stripExtra(content) );
             }
             catch( e ) {
                 console.log( "Failed to parse AI response", content );

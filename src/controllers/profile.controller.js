@@ -243,9 +243,7 @@ class ProfileController {
             const existingProfile = await Profile.findOne({ user: user._id });
             if (existingProfile) {
                 await Profile.findOneAndUpdate({_id : existingProfile._id, user : user._id}, { location, phoneNo, linkedIn, github, portfolio });
-            } else if (location || phoneNo) { 
-                await Profile.create({ user: user._id, location, phoneNo, linkedIn, github, portfolio });
-            }
+            } 
 
             if (workExperiences.length > 0) {
                 await Promise.all(workExperiences.map(async (w) => {

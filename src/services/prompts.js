@@ -263,7 +263,7 @@ Allowed: professional rewriting, technical enhancement, architectural framing.
 Not allowed: fake experiences, skills, metrics, or technologies.
 
 5. PROJECT & EXPERIENCE REWRITING
-Use strong verbs. Be concise, technical, impact-oriented, and ATS-optimized.
+Use strong verbs. Be concise, technical, impact-oriented, and ATS-optimized. Prioritise project with live_link and github_link. If a project does not have any, use it in the the case where no other existing project fits the requirement.
 Highlight: APIs, scalability, authentication, performance, architecture, optimization, integrations, responsive design, databases, deployment, technical complexity.
 
 6. EMPTY SECTION HANDLING
@@ -282,6 +282,13 @@ Target 1 page (strict for students/early-career). Keep bullets concise (3 points
 Strictly match the JD. Only mention skills/experience/projects relevant to the JD.
 Exception: if sufficient JD-matched data is insufficient, use best available profile data.
 
+11. Use globally renouned ATS practices to generate an ATS score for the generated resume ranging from 0 to 100.
+
+12. The title should be concise descriptive title for the generated resume. Eg. Software Development Intern, Summer Analyst Intern
+
+13. Company should contain the target company name only if the Job Description explicitly belongs to a specific company.
+Otherwise return "".
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 OUTPUT RULES (ABSOLUTE)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -292,10 +299,21 @@ OUTPUT RULES (ABSOLUTE)
 - No extra keys beyond the schema.
 - Use [] or "" for unpopulated fields.
 
+The backend is responsible for attaching metadata after generation.
+
+Do NOT generate or modify backend-managed fields such as:
+- user
+- profile
+- jd
+- createdAt
+- updatedAt
+
 OUTPUT SCHEMA:
 {
-  "user": "",
-  "ats": "",
+  "title" : "",
+  "company" : "", 
+  "role" : "",
+  "ats": 0,
   "workExp": [
     { "organisation": "", "post": "", "location": "", "startDate": "", "endDate": "", "contents": [] }
   ],
@@ -454,7 +472,7 @@ Allowed: professional rewriting, architectural framing, technical enhancement, c
 Not allowed: fake experience, fake skills, fake achievements, fake metrics, fake technologies.
 
 6. PROJECT & EXPERIENCE REWRITING
-Use strong verbs. Be concise, technical, ATS-optimized, recruiter-friendly, and impact-oriented.
+Use strong verbs. Be concise, technical, ATS-optimized, recruiter-friendly, and impact-oriented. Prioritise projects with live_link and github_link. Use projects with now live or github_link only when no other projects maps to the prompt. 
 Highlight where applicable: APIs, authentication, performance, scalability, deployment, architecture, databases, responsive UI, real-time systems, integrations, CI/CD, testing, AI integrations.
 
 7. EMPTY SECTION HANDLING
@@ -464,11 +482,11 @@ Never sparse/fabricate. Use adjacent experiences, maximize profile depth, reposi
 Prioritize based on custom prompt. Group compactly. Avoid duplicates and excessive dumps. Keep high-relevance skills first.
 
 9. PAGE CONSTRAINTS
-Target 1 page (preferred, students/early-career). 1.5 pages max in most cases. 2 pages only if profile depth genuinely requires it.
+Target 1 page (preferred, students/early-career).
 Keep bullets concise. Remove redundancy. Prioritize high-impact content. Compress low-priority sections.
 
 10. BULLET RULES
-1–4 bullets max per section. Dense one-line bullets preferred. Max 2 lines per bullet. No verbose storytelling.
+1–4 bullets max per section. Dense one-line bullets preferred. Max 2 lines per bullet. No verbose storytelling. Use harvard action words and not common english syllables. Eg. Spearheaded, Supervised, Implemented
 
 11. FALLBACK BEHAVIOR
 If USER_CUSTOM_PROMPT requests technologies not in the profile: adapt using closest related experience. Emphasize transferable skills. Do NOT fabricate expertise.
