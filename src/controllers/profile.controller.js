@@ -237,7 +237,6 @@ class ProfileController {
     async update(req, res) {
         const user = req.user;
         const { location, phoneNo, linkedIn, github, portfolio, workExperiences = [], projects = [], certifications = [], education = [], skills = [], achievements = [], miscellaneous = [] } = req.body;
-
         try {
             // Update Base Profile
             const existingProfile = await Profile.findOne({ user: user._id });
@@ -245,75 +244,42 @@ class ProfileController {
                 await Profile.findOneAndUpdate({_id : existingProfile._id, user : user._id}, { location, linkedIn, github, portfolio });
             } 
 
-            if (workExperiences.length > 0) {
-                await Promise.all(workExperiences.map(async (w) => {
-                    if (w._id) {
-                        await workExperience.findByIdAndUpdate(w._id, w)
-                    } else {
-                        await workExperience.create({ ...w, user: user._id })
-                    }
-                }))
+            async function syncCollection(Model, userId, incomingItems) {
+        // IDs that already exist in the database
+        const incomingIds = incomingItems
+            .filter(item => item._id)
+            .map(item => item._id);
+
+        // Delete documents removed on the frontend
+        await Model.deleteMany({
+            user: userId,
+            _id: { $nin: incomingIds }
+        });
+
+        // Update existing or create new
+        await Promise.all(
+            incomingItems.map(async item => {
+                if (item._id) {
+                    await Model.findByIdAndUpdate(item._id, item);
+                } else {
+                    await Model.create({
+                        ...item,
+                        user: userId
+                    });
+                }
+            })
+        );
             }
 
-            if (projects.length > 0) {
-                await Promise.all(projects.map(async (p) => {
-                    if (p._id) {
-                        await Project.findByIdAndUpdate(p._id, p)
-                    } else {
-                        await Project.create({ ...p, user: user._id })
-                    }
-                }))
-            }
-
-            if (certifications.length > 0) {
-                await Promise.all(certifications.map(async (c) => {
-                    if (c._id) {
-                        await Certification.findByIdAndUpdate(c._id, c)
-                    } else {
-                        await Certification.create({ ...c, user: user._id })
-                    }
-                }))
-            }
-
-            if (education.length > 0) {
-                await Promise.all(education.map(async (e) => {
-                    if (e._id) {
-                        await Education.findByIdAndUpdate(e._id, e)
-                    } else {
-                        await Education.create({ ...e, user: user._id })
-                    }
-                }))
-            }
-
-            if (skills.length > 0) {
-                await Promise.all(skills.map(async (s) => {
-                    if (s._id) {
-                        await Skill.findByIdAndUpdate(s._id, s)
-                    } else {
-                        await Skill.create({ ...s, user: user._id })
-                    }
-                }))
-            }
-
-            if (achievements.length > 0) {
-                await Promise.all(achievements.map(async (a) => {
-                    if (a._id) {
-                        await Achievement.findByIdAndUpdate(a._id, a)
-                    } else {
-                        await Achievement.create({ ...a, user: user._id })
-                    }
-                }))
-            }
-
-            if (miscellaneous.length > 0) {
-                await Promise.all(miscellaneous.map(async (m) => {
-                    if (m._id) {
-                        await Miscellaneous.findByIdAndUpdate(m._id, m)
-                    } else {
-                        await Miscellaneous.create({ ...m, user: user._id })
-                    }
-                }))
-            }
+            await Promise.all([
+                syncCollection(workExperience, user._id, workExperiences),
+                syncCollection(Project, user._id, projects),
+                syncCollection(Certification, user._id, certifications),
+                syncCollection(Education, user._id, education),
+                syncCollection(Skill, user._id, skills),
+                syncCollection(Achievement, user._id, achievements),
+                syncCollection(Miscellaneous, user._id, miscellaneous),
+            ]);
 
             return res.status(200).json({
                 success: true,
