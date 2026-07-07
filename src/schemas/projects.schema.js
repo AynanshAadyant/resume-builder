@@ -17,7 +17,6 @@ const projectSchema = new mongoose.Schema({
     },
     features: {
         type: String,
-        required: true,
     },
     github_link: {
         type: String

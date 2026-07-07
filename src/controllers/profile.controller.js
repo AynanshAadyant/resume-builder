@@ -236,13 +236,13 @@ class ProfileController {
 
     async update(req, res) {
         const user = req.user;
-        const { location, phoneNo, linkedIn, github, portfolio, workExperiences = [], projects = [], certifications = [], education = [], skills = [], achievements = [], miscellaneous = [] } = req.body;
+        const { location, linkedIn, github, portfolio, workExperiences = [], projects = [], certifications = [], education = [], skills = [], achievements = [], miscellaneous = [] } = req.body;
 
         try {
             // Update Base Profile
             const existingProfile = await Profile.findOne({ user: user._id });
             if (existingProfile) {
-                await Profile.findOneAndUpdate({_id : existingProfile._id, user : user._id}, { location, phoneNo, linkedIn, github, portfolio });
+                await Profile.findOneAndUpdate({_id : existingProfile._id, user : user._id}, { location, linkedIn, github, portfolio });
             } 
 
             if (workExperiences.length > 0) {
