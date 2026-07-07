@@ -236,7 +236,7 @@ class ProfileController {
 
     async update(req, res) {
         const user = req.user;
-        const { location, linkedIn, github, portfolio, workExperiences = [], projects = [], certifications = [], education = [], skills = [], achievements = [], miscellaneous = [] } = req.body;
+        const { location, phoneNo, linkedIn, github, portfolio, workExperiences = [], projects = [], certifications = [], education = [], skills = [], achievements = [], miscellaneous = [] } = req.body;
 
         try {
             // Update Base Profile
