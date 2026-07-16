@@ -121,17 +121,21 @@ class JD {
 
     async delete(req, res) {
         const user = req.user;
-        const JDId = req.params.id;
+        const JDId = req.params?.id;
         try {
-            const jd = await Jd.findOne({ _id: JDId, user });
-            if (!jd) {
-                return res.status(404).json({
+            if( !JDId ) {
+                return res.status( 400 ).json( {
                     success: false,
-                    message: "JD not found"
+                    message: "JD id missing"
                 })
             }
-
-            await jd.remove();
+            const jd = await JD.findByIdAndDelete( JDId );
+            if( !jd ) {
+                return res.status( 500 ).json( {
+                    success: false,
+                    message: "Cannot delete JD"
+                })
+            }
 
             return res.status(200).json({
                 success: true,

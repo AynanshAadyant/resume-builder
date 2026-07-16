@@ -9,6 +9,7 @@ router.post("/register", auth.register);
 router.post("/login", auth.login);
 router.get("/current", isAuthenticated, requestLogger, auth.current);
 router.post("/logout", isAuthenticated,requestLogger, auth.logout);
+router.put( "/update", isAuthenticated, requestLogger, auth.update );
 
 
 export default router

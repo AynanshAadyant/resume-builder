@@ -153,7 +153,8 @@ class Auth {
     }
 
     async update( req, res ) {
-        const user = req.user._id;
+        try 
+        {const user = req.user._id;
         const { name } = req.body;
         if( !name || name.trim() === "" ) {
             return res.status( 500 ).json( {
@@ -166,7 +167,14 @@ class Auth {
         return res.status( 200 ).json( {
             success: true,
             message: "User details updated successfully"
-        })
+        })}
+        catch( e ) {
+            console.log( "ERROR : ", e );
+            return res.status( 500 ).json( {
+                success: false,
+                message: "Something went wrong while updating"
+            })
+        }
     }
 }
 
