@@ -2,10 +2,26 @@ import mongoose from "mongoose";
 
 export default async function connectDB() {
     try {
-        const instance = await mongoose.connect(`${process.env.MONGO_URL}/${process.env.DB_NAME}`)
-        console.log(`Connected to ${instance.connection.host}`)
+        const mongoUrl = process.env.MONGO_URL;
+        const dbName = process.env.DB_NAME || "resume";
+
+        if (!mongoUrl) {
+            console.warn("WARNING: MONGO_URL not provided in environment.");
+            return;
+        }
+
+        // Clean connection string handling
+        const connectionString = mongoUrl.includes("?")
+            ? mongoUrl.replace("?", `/${dbName}?`)
+            : mongoUrl.endsWith("/")
+                ? `${mongoUrl}${dbName}`
+                : `${mongoUrl}/${dbName}`;
+
+        const instance = await mongoose.connect(connectionString);
+        console.log(`MongoDB connected: ${instance.connection.host}`);
     }
     catch (error) {
-        console.log("DB connection error: ", error);
+        console.error("MongoDB connection failed:", error.message);
+        throw error;
     }
 }

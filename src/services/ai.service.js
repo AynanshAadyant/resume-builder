@@ -11,11 +11,28 @@ class AI {
     }
 
     stripExtra(content) {
-    return content
-        .replace(/^```[a-zA-Z]*\s*/, "")
-        .replace(/\s*```$/, "")
-        .trim();
-}
+        if (!content || typeof content !== "string") return "{}";
+        let cleaned = content.trim();
+        if (cleaned.startsWith("```")) {
+            cleaned = cleaned.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+        }
+        const firstBrace = cleaned.indexOf("{");
+        const firstBracket = cleaned.indexOf("[");
+        let start = -1;
+        if (firstBrace !== -1 && firstBracket !== -1) {
+            start = Math.min(firstBrace, firstBracket);
+        } else {
+            start = Math.max(firstBrace, firstBracket);
+        }
+        const lastBrace = cleaned.lastIndexOf("}");
+        const lastBracket = cleaned.lastIndexOf("]");
+        const end = Math.max(lastBrace, lastBracket);
+
+        if (start !== -1 && end !== -1 && end > start) {
+            return cleaned.substring(start, end + 1);
+        }
+        return cleaned;
+    }
 
     async parseJD(jd) {
         try {

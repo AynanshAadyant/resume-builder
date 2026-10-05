@@ -241,34 +241,35 @@ class ProfileController {
             // Update Base Profile
             const existingProfile = await Profile.findOne({ user: user._id });
             if (existingProfile) {
-                await Profile.findOneAndUpdate({_id : existingProfile._id, user : user._id}, { location, linkedIn, github, portfolio });
+                await Profile.findOneAndUpdate(
+                    { _id: existingProfile._id, user: user._id },
+                    { location, phoneNo, linkedIn, github, portfolio },
+                    { new: true }
+                );
             } 
 
             async function syncCollection(Model, userId, incomingItems) {
-        // IDs that already exist in the database
-        const incomingIds = incomingItems
-            .filter(item => item._id)
-            .map(item => item._id);
+                const incomingIds = incomingItems
+                    .filter(item => item._id)
+                    .map(item => item._id);
 
-        // Delete documents removed on the frontend
-        await Model.deleteMany({
-            user: userId,
-            _id: { $nin: incomingIds }
-        });
+                await Model.deleteMany({
+                    user: userId,
+                    _id: { $nin: incomingIds }
+                });
 
-        // Update existing or create new
-        await Promise.all(
-            incomingItems.map(async item => {
-                if (item._id) {
-                    await Model.findByIdAndUpdate(item._id, item);
-                } else {
-                    await Model.create({
-                        ...item,
-                        user: userId
-                    });
-                }
-            })
-        );
+                await Promise.all(
+                    incomingItems.map(async item => {
+                        if (item._id) {
+                            await Model.findByIdAndUpdate(item._id, item);
+                        } else {
+                            await Model.create({
+                                ...item,
+                                user: userId
+                            });
+                        }
+                    })
+                );
             }
 
             await Promise.all([
@@ -285,14 +286,13 @@ class ProfileController {
                 success: true,
                 message: "Profile updated successfully",
                 data: {
-                    profile : {
+                    profile: {
                         user,
                         location,
                         phoneNo,
                         linkedIn,
                         github,
                         portfolio 
-
                     },
                     workExperiences,
                     projects,
@@ -305,30 +305,40 @@ class ProfileController {
             });
         }
         catch (e) {
-            console.log("ERROR while updating profile :", e);
+            console.error("ERROR while updating profile:", e);
             return res.status(500).json({
                 success: false,
-                message: "Something went wrong while updating profile",
-
-            })
+                message: "Something went wrong while updating profile"
+            });
         }
     }
 
     async delete(req, res) {
-        const user = req.user;
+        try {
+            const user = req.user;
 
-        await workExperience.deleteMany({ user: user._id });
-        await Project.deleteMany({ user: user._id });
-        await Certification.deleteMany({ user: user._id });
-        await Education.deleteMany({ user: user._id });
-        await Skill.deleteMany({ user: user._id });
-        await Achievement.deleteMany({ user: user._id });
-        await Miscellaneous.deleteMany({ user: user._id });
+            await Promise.all([
+                Profile.deleteOne({ user: user._id }),
+                workExperience.deleteMany({ user: user._id }),
+                Project.deleteMany({ user: user._id }),
+                Certification.deleteMany({ user: user._id }),
+                Education.deleteMany({ user: user._id }),
+                Skill.deleteMany({ user: user._id }),
+                Achievement.deleteMany({ user: user._id }),
+                Miscellaneous.deleteMany({ user: user._id })
+            ]);
 
-        return res.status(200).json({
-            success: true,
-            message: "Profile deleted successfully"
-        })
+            return res.status(200).json({
+                success: true,
+                message: "Profile deleted successfully"
+            });
+        } catch (e) {
+            console.error("ERROR while deleting profile:", e);
+            return res.status(500).json({
+                success: false,
+                message: "Something went wrong while deleting profile"
+            });
+        }
     }
 }
 

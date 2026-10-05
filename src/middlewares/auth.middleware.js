@@ -5,48 +5,46 @@ async function isAuthenticated(req, res, next) {
     try {
         const token = req.cookies?.ACCESS_TOKEN;
         if (!token) {
-            return res.status(500).json({
+            return res.status(401).json({
                 success: false,
-                message: "Unauthorised"
-            })
+                message: "Unauthorized: No token provided"
+            });
         }
         
         try {
             const decoded = await cookie.decryptCookie(token);
-            if (!decoded) {
-                return res.status(400).json({
+            if (!decoded || !decoded.id) {
+                return res.status(401).json({
                     success: false,
-                    message: "Invalid token payload"
-                })
+                    message: "Unauthorized: Invalid token payload"
+                });
             }
 
             const user = await User.findById(decoded.id).select("-password");
             if (!user) {
-                return res.status(404).json({
+                return res.status(401).json({
                     success: false,
-                    message: "User not found"
-                })
+                    message: "Unauthorized: User not found"
+                });
             }
 
             req.user = user;
             next();
         }
         catch (e) {
-            console.log(e)
-            return res.status(500).json({
+            return res.status(401).json({
                 success: false,
-                message: "Invalid token"
-            })
+                message: "Unauthorized: Token expired or invalid"
+            });
         }
     }
     catch (e) {
-        console.log("isAuthenticated ERROR :\n", e);
-
+        console.error("isAuthenticated ERROR:", e);
         return res.status(500).json({
             success: false,
-            message: "Something went wrong while authentication"
-        })
+            message: "Internal server error during authentication"
+        });
     }
 }
 
-export { isAuthenticated }
+export { isAuthenticated };
